@@ -34,8 +34,16 @@ Router.route("/:id")
       res.status(500).send(`An error occured: ${error}`);
     }
   })
-  .put((req, res) => {
-    res.status(200).json({ message: "Hello from put" });
+  .put(ValidateAccount, async (req, res) => {
+    try {
+      await db("accounts")
+        .where({ id: req.params.id })
+        .update(req.body);
+      const account = await db("accounts").where({ id: req.params.id });
+      res.status(200).json(account);
+    } catch (error) {
+      res.status(500).json({ errorMessage: error });
+    }
   });
 
 function ValidateAccount(req, res, next) {
