@@ -19,8 +19,8 @@ Router.route("/")
   });
 
 Router.route("/:id")
-  .get((req, res) => {
-    res.status(200).json({ message: `Hello from Get ${req.params.id}` });
+  .get(validateAccountID, (req, res) => {
+    res.status(200).json(req.account);
   })
   .post((req, res) => {
     res.status(200).json({ message: `Hello from post ${req.params.id}` });
@@ -42,5 +42,16 @@ function ValidateAccount(req, res, next) {
     next();
   }
 }
-
+async function validateAccountID(req, res, next) {
+  try {
+    const account = await db("accounts").where({ id: req.params.id });
+    account.length > 0
+      ? (req.account = account[0]) & next()
+      : // ? (req.project = project) & next()
+        res.status(400).json({ message: "Error retrieving the project" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error retrieving the project" });
+  }
+}
 module.exports = Router;
