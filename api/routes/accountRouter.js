@@ -7,8 +7,15 @@ Router.route("/")
     const accounts = await db("accounts");
     res.status(200).json(accounts);
   })
-  .post((req, res) => {
-    res.status(200).json({ message: "Hello from post" });
+  .post(ValidateAccount, async (req, res) => {
+    try {
+      const post = await db("accounts").insert(req.body);
+      res.status(200).json(post);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: `Error inserting post to database ${error}` });
+    }
   });
 
 Router.route("/:id")
@@ -24,5 +31,16 @@ Router.route("/:id")
   .put((req, res) => {
     res.status(200).json({ message: "Hello from put" });
   });
+
+function ValidateAccount(req, res, next) {
+  const { name, budget } = req.body;
+  if (!name || !budget) {
+    res
+      .status(400)
+      .json({ message: "Post missing required fields: Name or Budget" });
+  } else {
+    next();
+  }
+}
 
 module.exports = Router;
