@@ -22,11 +22,17 @@ Router.route("/:id")
   .get(validateAccountID, (req, res) => {
     res.status(200).json(req.account);
   })
-  .post((req, res) => {
-    res.status(200).json({ message: `Hello from post ${req.params.id}` });
-  })
-  .delete((req, res) => {
-    res.status(200).json({ message: `Hello from delete ${req.params.id}` });
+
+  .delete(validateAccountID, async (req, res) => {
+    console.log(req.params.id);
+    try {
+      const removed = await db("accounts")
+        .where({ id: req.params.id })
+        .del();
+      res.status(200).json(removed);
+    } catch (error) {
+      res.status(500).send(`An error occured: ${error}`);
+    }
   })
   .put((req, res) => {
     res.status(200).json({ message: "Hello from put" });
