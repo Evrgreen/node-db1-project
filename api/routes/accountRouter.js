@@ -1,10 +1,11 @@
 const express = require("express");
-
+const db = require("../../data/dbConfig.js");
 const Router = express.Router();
 
 Router.route("/")
-  .get((req, res) => {
-    res.status(200).json({ message: "Hello from Get" });
+  .get(async (req, res) => {
+    const accounts = await db("accounts");
+    res.status(200).json(accounts);
   })
   .post((req, res) => {
     res.status(200).json({ message: "Hello from post" });
